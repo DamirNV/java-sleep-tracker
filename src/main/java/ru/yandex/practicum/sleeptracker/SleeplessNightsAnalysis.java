@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
 
@@ -15,35 +16,18 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
             return new SleepAnalysisResult("Количество бессонных ночей", "нет данных");
         }
 
-        // Определяем диапазон дат
-        LocalDate firstDate = sessions.get(0).getSleepStart().toLocalDate();
-        LocalDate lastDate = sessions.get(sessions.size() - 1).getSleepEnd().toLocalDate();
-
-        // Корректируем первую дату согласно ТЗ
-        if (sessions.get(0).getSleepStart().toLocalTime().isAfter(LocalTime.NOON)) {
-            firstDate = firstDate.plusDays(1); // начали после 12 дня - следующая ночь
-        }
+        // Получаем диапазон всех ночей
+        LocalDate firstNight = getFirstNightDate(sessions.get(0));
+        LocalDate lastNight = sessions.get(sessions.size() - 1).getSleepEnd().toLocalDate();
 
         // Собираем все ночи со сном
-        Set<LocalDate> nightsWithSleep = new HashSet<>();
-
-        // ВРЕМЕННО используем цикл для отладки, потом заменим на Stream API
-        for (SleepingSession session : sessions) {
-            if (isNightSleepSession(session)) {
-                // Добавляем ночь сна
-                LocalDate nightDate = getNightDateForSession(session);
-                nightsWithSleep.add(nightDate);
-            }
-        }
+        Set<LocalDate> nightsWithSleep = sessions.stream()
+                .filter(this::coversNight)
+                .map(this::getNightDate)
+                .collect(Collectors.toSet());
 
         // Считаем все ночи в диапазоне
-        long totalNights = 0;
-        LocalDate currentDate = firstDate;
-
-        while (!currentDate.isAfter(lastDate)) {
-            totalNights++;
-            currentDate = currentDate.plusDays(1);
-        }
+        long totalNights = countNightsBetween(firstNight, lastNight);
 
         // Бессонные ночи = все ночи - ночи со сном
         long sleeplessNights = totalNights - nightsWithSleep.size();
@@ -54,25 +38,46 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
         );
     }
 
-    private boolean isNightSleepSession(SleepingSession session) {
+    // Определяет первую ночь для анализа согласно ТЗ
+    private LocalDate getFirstNightDate(SleepingSession firstSession) {
+        LocalDate sessionDate = firstSession.getSleepStart().toLocalDate();
+        LocalTime sessionTime = firstSession.getSleepStart().toLocalTime();
+
+        // Если первая сессия началась после 12 дня, начинаем со следующей ночи
+        if (sessionTime.isAfter(LocalTime.NOON)) {
+            return sessionDate.plusDays(1);
+        }
+        // Иначе начинаем с ночи этого дня
+        return sessionDate;
+    }
+
+    // Проверяет, покрывает ли сессия ночь (0:00-6:00)
+    private boolean coversNight(SleepingSession session) {
         LocalDateTime sleepStart = session.getSleepStart();
         LocalDateTime sleepEnd = session.getSleepEnd();
 
-        // Если сон начался и закончился в один день
-        if (sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
-            // Проверяем пересечение с интервалом 0:00-6:00
-            LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay(); // 00:00
-            LocalDateTime nightEnd = nightStart.plusHours(6); // 06:00
+        // Случай 1: Сон переходит через полночь
+        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
+            return true;
+        }
 
-            return !sleepEnd.isBefore(nightStart) && !sleepStart.isAfter(nightEnd);
+        // Случай 2: Сон начался до 6 утра
+        if (sleepStart.getHour() < 6) {
+            return true;
         }
-        // Если сон переходит через полночь
-        else {
-            return true; // любой сон через полночь покрывает ночь
-        }
+
+        // Случай 3: Сон начался вечером и закончился после полуночи
+        // (уже покрыт случаем 1)
+
+        // Случай 4: Сон полностью внутри интервала 0:00-6:00
+        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay();
+        LocalDateTime nightEnd = nightStart.plusHours(6);
+
+        return sleepStart.isBefore(nightEnd) && sleepEnd.isAfter(nightStart);
     }
 
-    private LocalDate getNightDateForSession(SleepingSession session) {
+    // Определяет, к какой ночи относится сессия сна
+    private LocalDate getNightDate(SleepingSession session) {
         LocalDateTime sleepStart = session.getSleepStart();
 
         // Если сон начался до 6 утра, это ночь предыдущего дня
@@ -80,8 +85,11 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
             return sleepStart.toLocalDate().minusDays(1);
         }
         // Иначе это ночь дня начала сна
-        else {
-            return sleepStart.toLocalDate();
-        }
+        return sleepStart.toLocalDate();
+    }
+
+    // Считает количество ночей между двумя датами (включительно)
+    private long countNightsBetween(LocalDate start, LocalDate end) {
+        return java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
     }
 }
