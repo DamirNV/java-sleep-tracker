@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SleepTrackerApp {
     private List<SleepAnalysisFunction> analysisFunctions;
@@ -22,45 +23,46 @@ public class SleepTrackerApp {
         analysisFunctions.add(function);
     }
 
-    // Метод для чтения файла (пока с циклом, потом заменим)
     public static List<SleepingSession> loadSleepSessions(String filePath) throws IOException {
         Path path = Paths.get(filePath);
-        List<String> lines = Files.readAllLines(path);
-        List<SleepingSession> sessions = new ArrayList<>();
 
-        // ВРЕМЕННО используем цикл - потом заменим на Stream API
-        for (String line : lines) {
-            if (line.trim().isEmpty()) continue;
+        // Используем Stream API вместо цикла
+        return Files.lines(path)
+                .filter(line -> !line.trim().isEmpty()) // Пропускаем пустые строки
+                .map(SleepTrackerApp::parseSleepSession) // Парсим каждую строку
+                .filter(session -> session != null) // Убираем неудачные парсинги
+                .collect(Collectors.toList()); // Собираем в список
+    }
 
+    private static SleepingSession parseSleepSession(String line) {
+        try {
             String[] parts = line.split(";");
             if (parts.length != 3) {
-                System.err.println("Неверный формат: " + line);
-                continue;
+                System.err.println("Неверный формат строки: " + line);
+                return null;
             }
 
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
-                LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), formatter);
-                LocalDateTime sleepEnd = LocalDateTime.parse(parts[1].trim(), formatter);
-                SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+            LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), formatter);
+            LocalDateTime sleepEnd = LocalDateTime.parse(parts[1].trim(), formatter);
+            SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
 
-                sessions.add(new SleepingSession(sleepStart, sleepEnd, quality));
-            } catch (Exception e) {
-                System.err.println("Ошибка парсинга: " + line);
-            }
+            return new SleepingSession(sleepStart, sleepEnd, quality);
+
+        } catch (Exception e) {
+            System.err.println("Ошибка при парсинге строки: " + line + " - " + e.getMessage());
+            return null;
         }
-
-        return sessions;
     }
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Использование: java SleepTrackerApp <путь_к_файлу>");
-            System.out.println("Пример: java SleepTrackerApp sleep_log.txt");
-            return;
-        }
+//        if (args.length < 1) {
+//            System.out.println("Использование: java SleepTrackerApp <путь_к_файлу>");
+//            System.out.println("Пример: java SleepTrackerApp sleep_log.txt");
+//            return;
+//        }
 
-        String filePath = args[0];
+        String filePath = "src/main/resources/sleep_log.txt";
 
         try {
             SleepTrackerApp app = new SleepTrackerApp();
@@ -68,11 +70,9 @@ public class SleepTrackerApp {
 
             System.out.println("Загружено сессий: " + sessions.size());
 
-            // Запускаем анализы
-            for (SleepAnalysisFunction function : app.analysisFunctions) {
-                SleepAnalysisResult result = function.analyze(sessions);
-                System.out.println(result);
-            }
+            app.analysisFunctions.stream()
+                    .map(function -> function.analyze(sessions))
+                    .forEach(System.out::println);
 
         } catch (Exception e) {
             System.err.println("Ошибка: " + e.getMessage());
