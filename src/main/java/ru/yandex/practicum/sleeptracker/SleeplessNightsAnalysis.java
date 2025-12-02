@@ -56,10 +56,13 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
             return true;
         }
 
-        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay();
-        LocalDateTime nightEnd = nightStart.plusHours(6);
+        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay(); // 00:00
+        LocalDateTime nightEnd = nightStart.plusHours(6); // 06:00
 
-        return sleepStart.isBefore(nightEnd) && sleepEnd.isAfter(nightStart);
+        boolean startsBeforeNightEnds = sleepStart.isBefore(nightEnd);
+        boolean endsAfterNightStarts = sleepEnd.isAfter(nightStart);
+
+        return startsBeforeNightEnds && endsAfterNightStarts;
     }
 
     private LocalDate getNightDate(SleepingSession session) {
