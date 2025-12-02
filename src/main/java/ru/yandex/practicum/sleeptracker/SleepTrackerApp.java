@@ -61,28 +61,48 @@ public class SleepTrackerApp {
     }
 
     public static void main(String[] args) {
-//        if (args.length < 1) {
-//            System.out.println("Использование: java SleepTrackerApp <путь_к_файлу>");
-//            System.out.println("Пример: java SleepTrackerApp sleep_log.txt");
-//            return;
-//        }
+        if (args.length < 1) {
+            System.out.println("Использование: java SleepTrackerApp <путь_к_файлу>");
+            System.out.println("Пример: java SleepTrackerApp sleep_log.txt");
+            return;
+        }
 
-        String filePath = "src/main/resources/sleep_log.txt";
+        String filePath = args[0];
 
         try {
             SleepTrackerApp app = new SleepTrackerApp();
             List<SleepingSession> sessions = loadSleepSessions(filePath);
 
-            System.out.println("=== Анализ сна ===");
-            System.out.println("Всего сессий: " + sessions.size());
-            System.out.println();
+            if (sessions.isEmpty()) {
+                System.out.println("В файле нет данных о сне или файл пуст.");
+                return;
+            }
 
-            app.analysisFunctions.stream()
-                    .map(function -> function.analyze(sessions))
-                    .forEach(result -> System.out.println("• " + result));
+            System.out.println("=".repeat(50));
+            System.out.println("АНАЛИЗ КАЧЕСТВА СНА");
+            System.out.println("=".repeat(50));
+            System.out.printf("Проанализировано сессий сна: %d%n", sessions.size());
+            System.out.printf("Период анализа: %s - %s%n%n",
+                    sessions.get(0).getSleepStart().toLocalDate(),
+                    sessions.get(sessions.size() - 1).getSleepEnd().toLocalDate());
 
+            System.out.println("РЕЗУЛЬТАТЫ АНАЛИЗА:");
+            System.out.println("-".repeat(50));
+
+            // Запускаем все аналитические функции
+            app.analysisFunctions.forEach(function -> {
+                SleepAnalysisResult result = function.analyze(sessions);
+                System.out.printf("• %s%n", result); // Используем toString() из SleepAnalysisResult
+            });
+
+            System.out.println("=".repeat(50));
+
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            System.err.println("Проверьте путь к файлу: " + filePath);
         } catch (Exception e) {
-            System.err.println("Ошибка: " + e.getMessage());
+            System.err.println("Произошла непредвиденная ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
