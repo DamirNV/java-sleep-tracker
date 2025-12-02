@@ -97,11 +97,10 @@ public class SleepTrackerApp {
 
         try {
             SleepTrackerApp app = new SleepTrackerApp();
-
             List<SleepingSession> sessions = loadSleepSessions(filePath);
 
-            if (sessions.isEmpty()) {
-                System.out.println("В файле нет данных о сне или файл пуст.");
+            if (sessions == null || sessions.isEmpty()) {
+                System.out.println("Не удалось загрузить данные или файл пуст.");
                 return;
             }
 
