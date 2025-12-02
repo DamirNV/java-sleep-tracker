@@ -71,11 +71,13 @@ public class SleepTrackerApp {
             SleepTrackerApp app = new SleepTrackerApp();
             List<SleepingSession> sessions = loadSleepSessions(filePath);
 
-            System.out.println("Загружено сессий: " + sessions.size());
+            System.out.println("=== Анализ сна ===");
+            System.out.println("Всего сессий: " + sessions.size());
+            System.out.println();
 
             app.analysisFunctions.stream()
                     .map(function -> function.analyze(sessions))
-                    .forEach(System.out::println);
+                    .forEach(result -> System.out.println("• " + result));
 
         } catch (Exception e) {
             System.err.println("Ошибка: " + e.getMessage());
