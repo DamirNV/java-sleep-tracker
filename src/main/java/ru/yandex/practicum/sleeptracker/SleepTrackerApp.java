@@ -32,38 +32,35 @@ public class SleepTrackerApp {
     }
 
     public static List<SleepingSession> loadSleepSessions(String filePath) throws IOException {
-        // Сначала пробуем найти как ресурс в classpath
         InputStream inputStream = SleepTrackerApp.class
                 .getClassLoader()
                 .getResourceAsStream(filePath);
 
         if (inputStream != null) {
-            // Файл найден в ресурсах
             System.out.println("Файл найден в ресурсах: " + filePath);
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8))) {
+                    new InputStreamReader(inputStream))) {
 
                 return reader.lines()
                         .filter(line -> !line.trim().isEmpty())
                         .map(SleepTrackerApp::parseSleepSession)
                         .filter(session -> session != null)
-                        .collect(java.util.stream.Collectors.toList());
+                        .collect(Collectors.toList());
             }
         }
 
-        // Если не нашли в ресурсах, пробуем как обычный файл
         System.out.println("Пробуем найти как обычный файл: " + filePath);
-        java.nio.file.Path path = java.nio.file.Paths.get(filePath);
-        if (!java.nio.file.Files.exists(path)) {
+        Path path = Paths.get(filePath);
+        if (!Files.exists(path)) {
             throw new IOException("Файл не найден: " + filePath +
                     "\nИскали в ресурсах и по пути: " + path.toAbsolutePath());
         }
 
-        return java.nio.file.Files.lines(path)
+        return Files.lines(path)
                 .filter(line -> !line.trim().isEmpty())
                 .map(SleepTrackerApp::parseSleepSession)
                 .filter(session -> session != null)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     private static SleepingSession parseSleepSession(String line) {
@@ -104,7 +101,6 @@ public class SleepTrackerApp {
         try {
             SleepTrackerApp app = new SleepTrackerApp();
 
-            // Пробуем загрузить сессии (внутри loadSleepSessions уже есть проверка)
             List<SleepingSession> sessions = loadSleepSessions(filePath);
 
             if (sessions.isEmpty()) {
@@ -134,12 +130,9 @@ public class SleepTrackerApp {
         } catch (IOException e) {
             System.err.println("Ошибка при чтении файла: " + e.getMessage());
             System.err.println("Проверьте путь и формат файла.");
-
-            // Дополнительная информация
             System.err.println("\nПоместите файл sleep_log.txt в:");
             System.err.println("1. src/main/resources/ (как ресурс)");
-            System.err.println("2. Корень проекта");
-            System.err.println("3. Или укажите полный путь к файлу");
+            System.err.println("2. Или укажите полный путь к файлу");
         } catch (Exception e) {
             System.err.println("Произошла непредвиденная ошибка: " + e.getMessage());
             e.printStackTrace();
