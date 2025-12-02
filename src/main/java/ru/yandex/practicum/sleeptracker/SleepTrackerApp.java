@@ -21,6 +21,7 @@ public class SleepTrackerApp {
         this.analysisFunctions.add(new AverageDurationAnalysis());
         this.analysisFunctions.add(new BadQualitySessionsAnalysis());
         this.analysisFunctions.add(new SleeplessNightsAnalysis());
+        this.analysisFunctions.add(new ChronotypeAnalysis());
     }
 
     public void addAnalysisFunction(SleepAnalysisFunction function) {
