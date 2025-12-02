@@ -1,6 +1,7 @@
 package ru.yandex.practicum.sleeptracker;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class SleepingSession {
     private final LocalDateTime sleepStart;
@@ -23,6 +24,10 @@ public class SleepingSession {
 
     public SleepQuality getQuality() {
         return quality;
+    }
+
+    public long getDurationInMinutes() {
+        return ChronoUnit.MINUTES.between(sleepStart, sleepEnd);
     }
 
     @Override
