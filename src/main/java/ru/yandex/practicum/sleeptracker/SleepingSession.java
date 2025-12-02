@@ -30,6 +30,25 @@ public class SleepingSession {
         return ChronoUnit.MINUTES.between(sleepStart, sleepEnd);
     }
 
+    public boolean overlapsNightInterval() {
+        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay(); // 00:00
+        LocalDateTime nightEnd = nightStart.plusHours(6); // 06:00
+
+        return !sleepEnd.isBefore(nightStart) && !sleepStart.isAfter(nightEnd);
+    }
+
+    public boolean isNightSleep() {
+        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
+            return true;
+        }
+        if (sleepStart.getHour() < 6) {
+            return true;
+        }
+        return overlapsNightInterval();
+    }
+
+
+
     @Override
     public String toString() {
         return String.format("SleepSession{start=%s, end=%s, quality=%s}",
