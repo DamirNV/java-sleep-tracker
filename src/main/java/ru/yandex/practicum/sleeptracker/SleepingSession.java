@@ -31,10 +31,25 @@ public class SleepingSession {
     }
 
     public boolean overlapsNightInterval() {
-        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay(); // 00:00
+        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay();
         LocalDateTime nightEnd = nightStart.plusHours(6); // 06:00
 
-        return !sleepEnd.isBefore(nightStart) && !sleepStart.isAfter(nightEnd);
+        boolean overlapsCurrentNight = !sleepEnd.isBefore(nightStart) &&
+                !sleepStart.isAfter(nightEnd);
+
+        if (overlapsCurrentNight) {
+            return true;
+        }
+
+        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
+            LocalDateTime prevNightStart = nightStart.minusDays(1);
+            LocalDateTime prevNightEnd = prevNightStart.plusHours(6);
+
+            return !sleepEnd.isBefore(prevNightStart) &&
+                    !sleepStart.isAfter(prevNightEnd);
+        }
+
+        return false;
     }
 
     public boolean isNightSleep() {
