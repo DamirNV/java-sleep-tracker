@@ -61,16 +61,31 @@ public class SleepTrackerApp {
     }
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Использование: java SleepTrackerApp <путь_к_файлу>");
-            System.out.println("Пример: java SleepTrackerApp sleep_log.txt");
-            return;
-        }
+        // Определяем путь к файлу
+        String filePath;
 
-        String filePath = args[0];
+        if (args.length > 0) {
+            // Используем переданный аргумент
+            filePath = args[0];
+        } else {
+            // По умолчанию ищем в корне
+            filePath = "sleep_log.txt";
+            System.out.println("Используется файл по умолчанию: " + filePath);
+            System.out.println("Для использования другого файла: java SleepTrackerApp <путь>");
+        }
 
         try {
             SleepTrackerApp app = new SleepTrackerApp();
+
+            // Проверяем существует ли файл
+            java.nio.file.Path path = java.nio.file.Paths.get(filePath);
+            if (!java.nio.file.Files.exists(path)) {
+                System.err.println("Файл не найден: " + filePath);
+                System.err.println("Текущая директория: " + System.getProperty("user.dir"));
+                System.err.println("\nПоместите файл sleep_log.txt в корень проекта");
+                return;
+            }
+
             List<SleepingSession> sessions = loadSleepSessions(filePath);
 
             if (sessions.isEmpty()) {
@@ -78,28 +93,28 @@ public class SleepTrackerApp {
                 return;
             }
 
-            System.out.println("=".repeat(50));
+            System.out.println("=".repeat(60));
             System.out.println("АНАЛИЗ КАЧЕСТВА СНА");
-            System.out.println("=".repeat(50));
+            System.out.println("=".repeat(60));
             System.out.printf("Проанализировано сессий сна: %d%n", sessions.size());
             System.out.printf("Период анализа: %s - %s%n%n",
                     sessions.get(0).getSleepStart().toLocalDate(),
                     sessions.get(sessions.size() - 1).getSleepEnd().toLocalDate());
 
             System.out.println("РЕЗУЛЬТАТЫ АНАЛИЗА:");
-            System.out.println("-".repeat(50));
+            System.out.println("-".repeat(60));
 
             // Запускаем все аналитические функции
             app.analysisFunctions.forEach(function -> {
                 SleepAnalysisResult result = function.analyze(sessions);
-                System.out.printf("• %s%n", result); // Используем toString() из SleepAnalysisResult
+                System.out.printf("• %s%n", result);
             });
 
-            System.out.println("=".repeat(50));
+            System.out.println("=".repeat(60));
 
         } catch (IOException e) {
             System.err.println("Ошибка при чтении файла: " + e.getMessage());
-            System.err.println("Проверьте путь к файлу: " + filePath);
+            System.err.println("Проверьте путь и формат файла.");
         } catch (Exception e) {
             System.err.println("Произошла непредвиденная ошибка: " + e.getMessage());
             e.printStackTrace();
