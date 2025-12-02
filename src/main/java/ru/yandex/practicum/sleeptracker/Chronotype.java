@@ -1,9 +1,9 @@
 package ru.yandex.practicum.sleeptracker;
 
 public enum Chronotype {
-    EARLY_BIRD("Жаворонок"),     // рано ложится, рано встает
-    NIGHT_OWL("Сова"),           // поздно ложится, поздно встает
-    DOVE("Голубь");              // промежуточный тип
+    EARLY_BIRD("Жаворонок"),
+    NIGHT_OWL("Сова"),
+    DOVE("Голубь");
 
     private final String displayName;
 
