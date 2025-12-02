@@ -53,10 +53,10 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
         int sleepHour = sleepStart.getHour();
         int wakeHour = sleepEnd.getHour();
 
-        if (sleepEnd.toLocalDate().isAfter(sleepStart.toLocalDate())) {
-            wakeHour += 24;
-        } else if (sleepEnd.isBefore(sleepStart)) {
-            wakeHour += 24;
+        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
+            if (wakeHour < sleepHour) {
+                wakeHour += 24;
+            }
         }
 
         if (sleepHour >= 23 && wakeHour >= 9) {

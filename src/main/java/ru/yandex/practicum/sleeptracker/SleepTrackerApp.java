@@ -85,14 +85,11 @@ public class SleepTrackerApp {
     }
 
     public static void main(String[] args) {
-        // Определяем путь к файлу
         String filePath;
 
         if (args.length > 0) {
-            // Используем переданный аргумент
             filePath = args[0];
         } else {
-            // По умолчанию ищем в корне
             filePath = "sleep_log.txt";
             System.out.println("Используется файл по умолчанию: " + filePath);
             System.out.println("Для использования другого файла: java SleepTrackerApp <путь>");
@@ -119,7 +116,6 @@ public class SleepTrackerApp {
             System.out.println("РЕЗУЛЬТАТЫ АНАЛИЗА:");
             System.out.println("-".repeat(60));
 
-            // Запускаем все аналитические функции
             app.analysisFunctions.forEach(function -> {
                 SleepAnalysisResult result = function.analyze(sessions);
                 System.out.printf("• %s%n", result);
