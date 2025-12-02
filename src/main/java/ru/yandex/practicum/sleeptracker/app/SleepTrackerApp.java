@@ -1,4 +1,10 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.app;
+
+import ru.yandex.practicum.sleeptracker.util.SleepSessionParser;
+import ru.yandex.practicum.sleeptracker.analyzer.*;
+import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
+import ru.yandex.practicum.sleeptracker.model.SleepQuality;
+import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,7 +49,7 @@ public class SleepTrackerApp {
 
                 return reader.lines()
                         .filter(line -> !line.trim().isEmpty())
-                        .map(SleepTrackerApp::parseSleepSession)
+                        .map(SleepSessionParser::parse)
                         .filter(session -> session != null)
                         .collect(Collectors.toList());
             }
@@ -58,31 +64,12 @@ public class SleepTrackerApp {
 
         return Files.lines(path)
                 .filter(line -> !line.trim().isEmpty())
-                .map(SleepTrackerApp::parseSleepSession)
+                .map(SleepSessionParser::parse)
                 .filter(session -> session != null)
                 .collect(Collectors.toList());
     }
 
-    private static SleepingSession parseSleepSession(String line) {
-        try {
-            String[] parts = line.split(";");
-            if (parts.length != 3) {
-                System.err.println("Неверный формат строки: " + line);
-                return null;
-            }
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
-            LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), formatter);
-            LocalDateTime sleepEnd = LocalDateTime.parse(parts[1].trim(), formatter);
-            SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
-
-            return new SleepingSession(sleepStart, sleepEnd, quality);
-
-        } catch (Exception e) {
-            System.err.println("Ошибка при парсинге строки: " + line + " - " + e.getMessage());
-            return null;
-        }
-    }
 
     public static void main(String[] args) {
         String filePath;

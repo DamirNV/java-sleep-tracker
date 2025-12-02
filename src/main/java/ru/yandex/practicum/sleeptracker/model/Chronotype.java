@@ -1,4 +1,4 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.model;
 
 public enum Chronotype {
     EARLY_BIRD("Жаворонок"),
