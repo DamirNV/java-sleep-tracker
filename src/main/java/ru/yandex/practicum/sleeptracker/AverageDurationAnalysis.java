@@ -6,7 +6,7 @@ public class AverageDurationAnalysis implements SleepAnalysisFunction {
 
     @Override
     public SleepAnalysisResult analyze(List<SleepingSession> sessions) {
-        if (sessions.isEmpty()) {
+        if (sessions == null || sessions.isEmpty()) {
             return new SleepAnalysisResult("Средняя продолжительность сессии", "нет данных");
         }
 

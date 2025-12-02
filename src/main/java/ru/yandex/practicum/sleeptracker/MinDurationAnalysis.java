@@ -6,7 +6,7 @@ public class MinDurationAnalysis implements SleepAnalysisFunction {
 
     @Override
     public SleepAnalysisResult analyze(List<SleepingSession> sessions) {
-        if (sessions.isEmpty()) {
+        if (sessions == null || sessions.isEmpty()) {
             return new SleepAnalysisResult("Минимальная продолжительность сессии", "нет данных");
         }
 
