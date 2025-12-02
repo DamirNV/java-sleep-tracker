@@ -15,8 +15,11 @@ public class SleepTrackerApp {
 
     public SleepTrackerApp() {
         this.analysisFunctions = new ArrayList<>();
-        // Добавляем первую функцию
         this.analysisFunctions.add(new TotalSessionsAnalysis());
+        this.analysisFunctions.add(new MinDurationAnalysis());
+        this.analysisFunctions.add(new MaxDurationAnalysis());
+        this.analysisFunctions.add(new AverageDurationAnalysis());
+        this.analysisFunctions.add(new BadQualitySessionsAnalysis());
     }
 
     public void addAnalysisFunction(SleepAnalysisFunction function) {
