@@ -40,7 +40,7 @@ class MaxDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Максимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(600, result.getResult());
+        assertEquals(600L, result.getResult());
     }
 
     @Test
@@ -57,7 +57,7 @@ class MaxDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Максимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(480, result.getResult());
+        assertEquals(480L, result.getResult());
     }
 
     @Test
@@ -97,6 +97,6 @@ class MaxDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Максимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(555, result.getResult());
+        assertEquals(555L, result.getResult());
     }
 }

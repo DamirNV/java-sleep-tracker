@@ -12,7 +12,6 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен правильно создать результат с числовым значением")
     void testCreationWithNumber() {
         SleepAnalysisResult result = new SleepAnalysisResult("Тест", 42);
-
         assertEquals("Тест", result.getDescription());
         assertEquals(42, result.getResult());
     }
@@ -21,7 +20,6 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен правильно создать результат со строковым значением")
     void testCreationWithString() {
         SleepAnalysisResult result = new SleepAnalysisResult("Тест", "значение");
-
         assertEquals("Тест", result.getDescription());
         assertEquals("значение", result.getResult());
     }
@@ -30,7 +28,6 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен вернуть корректное строковое представление для числа")
     void testToStringWithNumber() {
         SleepAnalysisResult result = new SleepAnalysisResult("Количество сессий", 10);
-
         assertEquals("Количество сессий: 10", result.toString());
     }
 
@@ -38,7 +35,6 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен вернуть корректное строковое представление для строки")
     void testToStringWithString() {
         SleepAnalysisResult result = new SleepAnalysisResult("Хронотип", "Сова");
-
         assertEquals("Хронотип: Сова", result.toString());
     }
 
@@ -46,7 +42,6 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен вернуть корректное строковое представление для null")
     void testToStringWithNull() {
         SleepAnalysisResult result = new SleepAnalysisResult("Тест", null);
-
         assertEquals("Тест: null", result.toString());
     }
 
@@ -59,7 +54,6 @@ class SleepAnalysisResultTest {
                 return "объект";
             }
         });
-
         assertEquals("Тест: объект", result.toString());
     }
 

@@ -2,8 +2,8 @@ package ru.yandex.practicum.sleeptracker.analyzer;
 
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
-
 import java.util.List;
+import java.util.Locale;
 
 public class AverageDurationAnalysis implements SleepAnalysisFunction {
 
@@ -20,7 +20,7 @@ public class AverageDurationAnalysis implements SleepAnalysisFunction {
 
         return new SleepAnalysisResult(
                 "Средняя продолжительность сессии (в минутах)",
-                String.format("%.1f", averageDuration)
+                String.format(Locale.US, "%.1f", averageDuration)
         );
     }
 }

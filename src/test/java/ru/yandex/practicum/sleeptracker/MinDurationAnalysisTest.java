@@ -38,9 +38,8 @@ class MinDurationAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Минимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(45, result.getResult());
+        assertEquals(45L, result.getResult());
     }
 
     @Test
@@ -55,16 +54,14 @@ class MinDurationAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Минимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(480, result.getResult());
+        assertEquals(480L, result.getResult());
     }
 
     @Test
     @DisplayName("Должен вернуть 'нет данных' для пустого списка")
     void testAnalyzeWithEmptyList() {
         SleepAnalysisResult result = analyzer.analyze(Collections.emptyList());
-
         assertEquals("Минимальная продолжительность сессии", result.getDescription());
         assertEquals("нет данных", result.getResult());
     }
@@ -73,7 +70,6 @@ class MinDurationAnalysisTest {
     @DisplayName("Должен корректно обработать null входные данные")
     void testAnalyzeWithNullInput() {
         SleepAnalysisResult result = analyzer.analyze(null);
-
         assertEquals("Минимальная продолжительность сессии", result.getDescription());
         assertEquals("нет данных", result.getResult());
     }
@@ -95,8 +91,7 @@ class MinDurationAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Минимальная продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals(10, result.getResult());
+        assertEquals(10L, result.getResult());
     }
 }

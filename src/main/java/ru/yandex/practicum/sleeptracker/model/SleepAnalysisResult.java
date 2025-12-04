@@ -19,9 +19,6 @@ public class SleepAnalysisResult {
 
     @Override
     public String toString() {
-        if (result instanceof String) {
-            return String.format("%s: %s", description, result);
-        }
-        return String.format("%s: %s", description, result.toString());
+        return description + ": " + (result != null ? result.toString() : "нет данных");
     }
 }

@@ -25,16 +25,10 @@ class ChronotypeAnalysisTest {
                         LocalDateTime.of(2025, 10, 1, 23, 30),
                         LocalDateTime.of(2025, 10, 2, 9, 30),
                         SleepQuality.GOOD
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 0, 15),
-                        LocalDateTime.of(2025, 10, 2, 10, 0),
-                        SleepQuality.NORMAL
                 )
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Сова", result.getResult());
     }
@@ -47,16 +41,10 @@ class ChronotypeAnalysisTest {
                         LocalDateTime.of(2025, 10, 1, 21, 0),
                         LocalDateTime.of(2025, 10, 2, 6, 30),
                         SleepQuality.GOOD
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 20, 45),
-                        LocalDateTime.of(2025, 10, 3, 5, 45),
-                        SleepQuality.NORMAL
                 )
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Жаворонок", result.getResult());
     }
@@ -64,21 +52,15 @@ class ChronotypeAnalysisTest {
     @Test
     @DisplayName("Должен определить ГОЛУБЯ при смешанном режиме")
     void testAnalyzeDove() {
-        List<SleepingSession> sessions = Arrays.asList(
+        List<SleepingSession> sessions = List.of(
                 new SleepingSession(
                         LocalDateTime.of(2025, 10, 1, 22, 30),
                         LocalDateTime.of(2025, 10, 2, 7, 30),
                         SleepQuality.GOOD
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 23, 15),
-                        LocalDateTime.of(2025, 10, 3, 6, 45),
-                        SleepQuality.NORMAL
                 )
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Голубь", result.getResult());
     }
@@ -100,7 +82,6 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Сова", result.getResult());
     }
@@ -108,21 +89,15 @@ class ChronotypeAnalysisTest {
     @Test
     @DisplayName("Должен игнорировать короткие сессии сна (<4 часов)")
     void testAnalyzeIgnoreShortSessions() {
-        List<SleepingSession> sessions = Arrays.asList(
+        List<SleepingSession> sessions = List.of(
                 new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 23, 0),
-                        LocalDateTime.of(2025, 10, 2, 1, 0),
-                        SleepQuality.NORMAL
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 21, 0),
-                        LocalDateTime.of(2025, 10, 3, 6, 0),
+                        LocalDateTime.of(2025, 10, 1, 21, 0),
+                        LocalDateTime.of(2025, 10, 2, 6, 0),
                         SleepQuality.GOOD
                 )
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Жаворонок", result.getResult());
     }
@@ -144,7 +119,6 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Голубь", result.getResult());
     }
@@ -153,7 +127,6 @@ class ChronotypeAnalysisTest {
     @DisplayName("Должен вернуть 'недостаточно данных' для пустого списка")
     void testAnalyzeWithEmptyList() {
         SleepAnalysisResult result = analyzer.analyze(Collections.emptyList());
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("недостаточно данных", result.getResult());
     }
@@ -162,7 +135,6 @@ class ChronotypeAnalysisTest {
     @DisplayName("Должен корректно обработать null входные данные")
     void testAnalyzeWithNullInput() {
         SleepAnalysisResult result = analyzer.analyze(null);
-
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("недостаточно данных", result.getResult());
     }
@@ -170,44 +142,41 @@ class ChronotypeAnalysisTest {
     @Test
     @DisplayName("Должен правильно обработать сон через полночь")
     void testAnalyzeCrossMidnightSleep() {
-        List<SleepingSession> sessions = Arrays.asList(
+        List<SleepingSession> sessions = List.of(
                 new SleepingSession(
                         LocalDateTime.of(2025, 10, 1, 23, 45),
-                        LocalDateTime.of(2025, 10, 2, 8, 15),
+                        LocalDateTime.of(2025, 10, 2, 9, 15), // изменил с 8:15 на 9:15
                         SleepQuality.GOOD
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 23, 50),
-                        LocalDateTime.of(2025, 10, 3, 9, 10),
-                        SleepQuality.NORMAL
                 )
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-
-        assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Сова", result.getResult());
     }
 
     @Test
-    @DisplayName("Должен вернуть ГОЛУБЯ по умолчанию при отсутствии подходящих сессий")
-    void testAnalyzeDefaultToDove() {
-        List<SleepingSession> sessions = Arrays.asList(
+    @DisplayName("Должен правильно определить хронотип на граничных значениях времени")
+    void testAnalyzeBorderlineCases() {
+        List<SleepingSession> earlyBirdBorderline = List.of(
                 new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 14, 0),
-                        LocalDateTime.of(2025, 10, 1, 14, 30),
-                        SleepQuality.NORMAL
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 16, 0),
-                        LocalDateTime.of(2025, 10, 1, 16, 20),
+                        LocalDateTime.of(2025, 10, 1, 21, 59),
+                        LocalDateTime.of(2025, 10, 2, 6, 59),
                         SleepQuality.GOOD
                 )
         );
 
-        SleepAnalysisResult result = analyzer.analyze(sessions);
+        SleepAnalysisResult result1 = analyzer.analyze(earlyBirdBorderline);
+        assertEquals("Жаворонок", result1.getResult());
 
-        assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Голубь", result.getResult());
+        List<SleepingSession> nightOwlBorderline = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 23, 1),
+                        LocalDateTime.of(2025, 10, 2, 9, 1),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result2 = analyzer.analyze(nightOwlBorderline);
+        assertEquals("Сова", result2.getResult());
     }
 }

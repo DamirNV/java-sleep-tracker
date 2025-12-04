@@ -2,9 +2,9 @@ package ru.yandex.practicum.sleeptracker.analyzer;
 
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
+import ru.yandex.practicum.sleeptracker.util.NightUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -19,20 +19,19 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
         }
 
         LocalDate firstNight = getFirstNightDate(sessions.get(0));
-        LocalDate lastNight = sessions.get(sessions.size() - 1).getSleepEnd().toLocalDate();
+        LocalDate lastNight = getLastNightDate(sessions.get(sessions.size() - 1));
 
         Set<LocalDate> nightsWithSleep = sessions.stream()
-                .filter(this::coversNight)
-                .map(this::getNightDate)
+                .filter(NightUtils::overlapsNightInterval)
+                .map(NightUtils::getNightDate)
                 .collect(Collectors.toSet());
 
-        long totalNights = countNightsBetween(firstNight, lastNight);
-
-        long sleeplessNights = totalNights - nightsWithSleep.size();
+        long totalNights = NightUtils.countNightsBetween(firstNight, lastNight);
+        long sleeplessNights = Math.max(0, totalNights - nightsWithSleep.size());
 
         return new SleepAnalysisResult(
                 "Количество бессонных ночей",
-                Math.max(0, sleeplessNights)
+                sleeplessNights
         );
     }
 
@@ -41,42 +40,20 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
         LocalTime sessionTime = firstSession.getSleepStart().toLocalTime();
 
         if (sessionTime.isAfter(LocalTime.NOON)) {
-            return sessionDate.plusDays(1);
+            return sessionDate;
+        } else {
+            return sessionDate.minusDays(1);
         }
-        return sessionDate;
     }
 
-    private boolean coversNight(SleepingSession session) {
-        LocalDateTime sleepStart = session.getSleepStart();
-        LocalDateTime sleepEnd = session.getSleepEnd();
+    private LocalDate getLastNightDate(SleepingSession lastSession) {
+        LocalDate sessionDate = lastSession.getSleepEnd().toLocalDate();
+        LocalTime sessionTime = lastSession.getSleepEnd().toLocalTime();
 
-        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
-            return true;
+        if (sessionTime.isBefore(LocalTime.NOON)) {
+            return sessionDate.minusDays(1);
+        } else {
+            return sessionDate;
         }
-
-        if (sleepStart.getHour() < 6) {
-            return true;
-        }
-
-        LocalDateTime nightStart = sleepStart.toLocalDate().atStartOfDay(); // 00:00
-        LocalDateTime nightEnd = nightStart.plusHours(6); // 06:00
-
-        boolean startsBeforeNightEnds = sleepStart.isBefore(nightEnd);
-        boolean endsAfterNightStarts = sleepEnd.isAfter(nightStart);
-
-        return startsBeforeNightEnds && endsAfterNightStarts;
-    }
-
-    private LocalDate getNightDate(SleepingSession session) {
-        LocalDateTime sleepStart = session.getSleepStart();
-
-        if (sleepStart.getHour() < 6) {
-            return sleepStart.toLocalDate().minusDays(1);
-        }
-        return sleepStart.toLocalDate();
-    }
-
-    private long countNightsBetween(LocalDate start, LocalDate end) {
-        return java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
     }
 }

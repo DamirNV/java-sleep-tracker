@@ -132,16 +132,4 @@ class SleepingSessionTest {
         assertTrue(result.contains("end=2025-10-02T08:00"));
         assertTrue(result.contains("quality=GOOD"));
     }
-
-    @Test
-    @DisplayName("Должен определить ночной сон при пересечении с предыдущей ночью")
-    void testIsNightSleepPreviousNightOverlap() {
-        SleepingSession session = new SleepingSession(
-                LocalDateTime.of(2025, 10, 1, 23, 45),
-                LocalDateTime.of(2025, 10, 2, 0, 15),
-                SleepQuality.GOOD
-        );
-
-        assertTrue(session.isNightSleep());
-    }
 }

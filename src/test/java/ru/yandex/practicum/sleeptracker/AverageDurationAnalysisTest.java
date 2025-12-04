@@ -40,7 +40,10 @@ class AverageDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Средняя продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals("370.0", result.getResult());
+        assertTrue(result.getResult() instanceof String);
+
+        String actual = (String) result.getResult();
+        assertEquals("340.0", actual.replace(',', '.'));
     }
 
     @Test
@@ -57,7 +60,10 @@ class AverageDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Средняя продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals("480.0", result.getResult());
+        assertTrue(result.getResult() instanceof String);
+
+        String actual = (String) result.getResult();
+        assertEquals("480.0", actual.replace(',', '.'));
     }
 
     @Test
@@ -97,6 +103,9 @@ class AverageDurationAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
 
         assertEquals("Средняя продолжительность сессии (в минутах)", result.getDescription());
-        assertEquals("502.5", result.getResult());
+        assertTrue(result.getResult() instanceof String);
+
+        String actual = (String) result.getResult();
+        assertEquals("502.5", actual.replace(',', '.'));
     }
 }

@@ -18,7 +18,8 @@ public class SleepSessionParser {
         try {
             String[] parts = line.split(";");
             if (parts.length != 3) {
-                throw new IllegalArgumentException("Неверный формат строки: " + line);
+                System.err.println("Неверный формат строки: " + line);
+                return null;
             }
 
             LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), FORMATTER);
@@ -26,19 +27,21 @@ public class SleepSessionParser {
             SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
 
             if (sleepEnd.isBefore(sleepStart)) {
-                throw new IllegalArgumentException(
-                        "Время окончания раньше начала: " + sleepStart + " - " + sleepEnd);
+                System.err.println("Время окончания раньше начала: " + line);
+                return null;
             }
 
             return new SleepingSession(sleepStart, sleepEnd, quality);
 
         } catch (Exception e) {
-            System.err.println("Ошибка парсинга: " + line + " - " + e.getMessage());
+            System.err.println("Ошибка парсинга строки: " + line + " - " + e.getMessage());
             return null;
         }
     }
 
     public static boolean isValidFormat(String line) {
-        return line != null && line.split(";").length == 3;
+        if (line == null) return false;
+        String[] parts = line.split(";");
+        return parts.length == 3;
     }
 }

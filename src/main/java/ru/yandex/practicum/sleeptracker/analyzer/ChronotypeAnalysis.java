@@ -3,13 +3,18 @@ package ru.yandex.practicum.sleeptracker.analyzer;
 import ru.yandex.practicum.sleeptracker.model.Chronotype;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
+import ru.yandex.practicum.sleeptracker.util.NightUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ChronotypeAnalysis implements SleepAnalysisFunction {
+
+    private static final int OWL_SLEEP_HOUR = 23;
+    private static final int OWL_WAKE_HOUR = 9;
+    private static final int BIRD_SLEEP_HOUR = 22;
+    private static final int BIRD_WAKE_HOUR = 7;
 
     @Override
     public SleepAnalysisResult analyze(List<SleepingSession> sessions) {
@@ -34,38 +39,23 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
     }
 
     private boolean isNightSessionForChronotype(SleepingSession session) {
-        LocalDateTime sleepStart = session.getSleepStart();
-        LocalDateTime sleepEnd = session.getSleepEnd();
-
-        if (sleepStart.toLocalDate().equals(sleepEnd.toLocalDate()) &&
-                sleepStart.getHour() >= 6) {
-            return false;
-        }
-
-        long durationHours = java.time.Duration.between(sleepStart, sleepEnd).toHours();
-        if (durationHours < 4) {
-            return false;
-        }
-
-        return true;
+        return NightUtils.overlapsNightInterval(
+                session.getSleepStart(),
+                session.getSleepEnd()
+        );
     }
 
     private Chronotype determineChronotypeForSession(SleepingSession session) {
-        LocalDateTime sleepStart = session.getSleepStart();
-        LocalDateTime sleepEnd = session.getSleepEnd();
+        int sleepHour = session.getSleepStart().getHour();
+        int wakeHour = session.getSleepEnd().getHour();
 
-        int sleepHour = sleepStart.getHour();
-        int wakeHour = sleepEnd.getHour();
-
-        if (!sleepStart.toLocalDate().equals(sleepEnd.toLocalDate())) {
-            if (wakeHour < sleepHour) {
-                wakeHour += 24;
-            }
+        if (!session.getSleepStart().toLocalDate().equals(session.getSleepEnd().toLocalDate())) {
+            wakeHour += 24;
         }
 
-        if (sleepHour >= 23 && wakeHour >= 9) {
+        if (sleepHour >= OWL_SLEEP_HOUR && wakeHour >= (OWL_WAKE_HOUR + 24)) {
             return Chronotype.NIGHT_OWL;
-        } else if (sleepHour < 22 && wakeHour < 7) {
+        } else if (sleepHour < BIRD_SLEEP_HOUR && wakeHour < (BIRD_WAKE_HOUR + 24)) {
             return Chronotype.EARLY_BIRD;
         } else {
             return Chronotype.DOVE;
