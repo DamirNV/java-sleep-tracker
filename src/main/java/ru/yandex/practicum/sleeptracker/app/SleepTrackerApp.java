@@ -47,14 +47,7 @@ public class SleepTrackerApp {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 return reader.lines()
                         .filter(line -> !line.trim().isEmpty())
-                        .map(line -> {
-                            try {
-                                return SleepSessionParser.parse(line);
-                            } catch (Exception e) {
-                                System.err.println("Ошибка парсинга строки: " + line + " - " + e.getMessage());
-                                return null;
-                            }
-                        })
+                        .map(SleepSessionParser::parse)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
             }
@@ -71,14 +64,7 @@ public class SleepTrackerApp {
         System.out.println("Файл найден по пути: " + path.toAbsolutePath());
         return Files.lines(path)
                 .filter(line -> !line.trim().isEmpty())
-                .map(line -> {
-                    try {
-                        return SleepSessionParser.parse(line);
-                    } catch (Exception e) {
-                        System.err.println("Ошибка парсинга строки: " + line + " - " + e.getMessage());
-                        return null;
-                    }
-                })
+                .map(SleepSessionParser::parse)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

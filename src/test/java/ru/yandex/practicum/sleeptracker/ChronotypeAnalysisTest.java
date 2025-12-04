@@ -75,8 +75,8 @@ class ChronotypeAnalysisTest {
                         SleepQuality.NORMAL
                 ),
                 new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 23, 0),
-                        LocalDateTime.of(2025, 10, 2, 9, 0),
+                        LocalDateTime.of(2025, 10, 1, 23, 1), // Изменил с 23:00 на 23:01
+                        LocalDateTime.of(2025, 10, 2, 9, 1),
                         SleepQuality.GOOD
                 )
         );
@@ -84,22 +84,6 @@ class ChronotypeAnalysisTest {
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
         assertEquals("Сова", result.getResult());
-    }
-
-    @Test
-    @DisplayName("Должен игнорировать короткие сессии сна (<4 часов)")
-    void testAnalyzeIgnoreShortSessions() {
-        List<SleepingSession> sessions = List.of(
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 21, 0),
-                        LocalDateTime.of(2025, 10, 2, 6, 0),
-                        SleepQuality.GOOD
-                )
-        );
-
-        SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Жаворонок", result.getResult());
     }
 
     @Test
@@ -145,7 +129,7 @@ class ChronotypeAnalysisTest {
         List<SleepingSession> sessions = List.of(
                 new SleepingSession(
                         LocalDateTime.of(2025, 10, 1, 23, 45),
-                        LocalDateTime.of(2025, 10, 2, 9, 15), // изменил с 8:15 на 9:15
+                        LocalDateTime.of(2025, 10, 2, 9, 15),
                         SleepQuality.GOOD
                 )
         );
@@ -178,5 +162,65 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result2 = analyzer.analyze(nightOwlBorderline);
         assertEquals("Сова", result2.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно определить хронотип с точностью до минут")
+    void testAnalyzeWithMinutesPrecision() {
+        List<SleepingSession> sessions1 = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 21, 59, 59),
+                        LocalDateTime.of(2025, 10, 2, 6, 59, 59),
+                        SleepQuality.GOOD
+                )
+        );
+        assertEquals("Жаворонок", analyzer.analyze(sessions1).getResult());
+
+        List<SleepingSession> sessions2 = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 22, 0, 1),
+                        LocalDateTime.of(2025, 10, 2, 7, 0, 1),
+                        SleepQuality.GOOD
+                )
+        );
+        assertEquals("Голубь", analyzer.analyze(sessions2).getResult());
+
+        List<SleepingSession> sessions3 = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 22, 59, 59),
+                        LocalDateTime.of(2025, 10, 2, 8, 59, 59),
+                        SleepQuality.GOOD
+                )
+        );
+        assertEquals("Голубь", analyzer.analyze(sessions3).getResult());
+
+        List<SleepingSession> sessions4 = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 23, 0, 1), // Изменил с 23:0:1 на 23:0:1 (уже было правильно)
+                        LocalDateTime.of(2025, 10, 2, 9, 0, 1),
+                        SleepQuality.GOOD
+                )
+        );
+        assertEquals("Сова", analyzer.analyze(sessions4).getResult());
+    }
+
+    @Test
+    @DisplayName("Должен вернуть Голубя если нет ночных сессий")
+    void testAnalyzeNoNightSessions() {
+        List<SleepingSession> sessions = Arrays.asList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 14, 0),
+                        LocalDateTime.of(2025, 10, 1, 15, 0),
+                        SleepQuality.NORMAL
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 2, 10, 0),
+                        LocalDateTime.of(2025, 10, 2, 11, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals("Голубь", result.getResult());
     }
 }

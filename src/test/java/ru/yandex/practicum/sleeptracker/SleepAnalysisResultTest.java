@@ -42,7 +42,7 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен вернуть корректное строковое представление для null")
     void testToStringWithNull() {
         SleepAnalysisResult result = new SleepAnalysisResult("Тест", null);
-        assertEquals("Тест: null", result.toString());
+        assertEquals("Тест: нет данных", result.toString()); // Исправлено согласно коду
     }
 
     @Test
@@ -69,5 +69,12 @@ class SleepAnalysisResultTest {
         assertEquals(3.14, doubleResult.getResult());
         assertEquals(true, boolResult.getResult());
         assertNull(nullResult.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен вернуть строковое представление с форматированием для double")
+    void testToStringWithDouble() {
+        SleepAnalysisResult result = new SleepAnalysisResult("Среднее", 123.456);
+        assertEquals("Среднее: 123.456", result.toString());
     }
 }

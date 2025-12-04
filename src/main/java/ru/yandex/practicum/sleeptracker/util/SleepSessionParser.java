@@ -15,33 +15,19 @@ public class SleepSessionParser {
             return null;
         }
 
-        try {
-            String[] parts = line.split(";");
-            if (parts.length != 3) {
-                System.err.println("Неверный формат строки: " + line);
-                return null;
-            }
+        String[] parts = line.split(";");
+        if (parts.length != 3) {
+            return null;
+        }
 
+        try {
             LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), FORMATTER);
             LocalDateTime sleepEnd = LocalDateTime.parse(parts[1].trim(), FORMATTER);
             SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
 
-            if (sleepEnd.isBefore(sleepStart)) {
-                System.err.println("Время окончания раньше начала: " + line);
-                return null;
-            }
-
             return new SleepingSession(sleepStart, sleepEnd, quality);
-
         } catch (Exception e) {
-            System.err.println("Ошибка парсинга строки: " + line + " - " + e.getMessage());
             return null;
         }
-    }
-
-    public static boolean isValidFormat(String line) {
-        if (line == null) return false;
-        String[] parts = line.split(";");
-        return parts.length == 3;
     }
 }

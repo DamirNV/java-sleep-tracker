@@ -23,7 +23,7 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
         }
 
         Map<Chronotype, Long> chronotypeCounts = sessions.stream()
-                .filter(this::isNightSessionForChronotype)
+                .filter(NightUtils::overlapsNightInterval)
                 .map(this::determineChronotypeForSession)
                 .collect(Collectors.groupingBy(
                         chronotype -> chronotype,
@@ -38,24 +38,25 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
         );
     }
 
-    private boolean isNightSessionForChronotype(SleepingSession session) {
-        return NightUtils.overlapsNightInterval(
-                session.getSleepStart(),
-                session.getSleepEnd()
-        );
-    }
-
     private Chronotype determineChronotypeForSession(SleepingSession session) {
         int sleepHour = session.getSleepStart().getHour();
+        int sleepMinute = session.getSleepStart().getMinute();
         int wakeHour = session.getSleepEnd().getHour();
+        int wakeMinute = session.getSleepEnd().getMinute();
 
-        if (!session.getSleepStart().toLocalDate().equals(session.getSleepEnd().toLocalDate())) {
-            wakeHour += 24;
+        double sleepTime = sleepHour + sleepMinute / 60.0;
+        double wakeTime = wakeHour + wakeMinute / 60.0;
+
+        boolean differentDay = !session.getSleepStart().toLocalDate().equals(session.getSleepEnd().toLocalDate());
+
+        double adjustedWakeTime = wakeTime;
+        if (differentDay) {
+            adjustedWakeTime = wakeTime + 24;
         }
 
-        if (sleepHour >= OWL_SLEEP_HOUR && wakeHour >= (OWL_WAKE_HOUR + 24)) {
+        if (sleepTime >= OWL_SLEEP_HOUR && adjustedWakeTime > OWL_WAKE_HOUR) {
             return Chronotype.NIGHT_OWL;
-        } else if (sleepHour < BIRD_SLEEP_HOUR && wakeHour < (BIRD_WAKE_HOUR + 24)) {
+        } else if (sleepTime < BIRD_SLEEP_HOUR && wakeTime < BIRD_WAKE_HOUR) {
             return Chronotype.EARLY_BIRD;
         } else {
             return Chronotype.DOVE;

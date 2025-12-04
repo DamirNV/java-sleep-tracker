@@ -129,32 +129,4 @@ class SleepSessionParserTest {
         assertEquals(LocalDateTime.of(2025, 10, 2, 8, 0), session.getSleepEnd());
         assertEquals(SleepQuality.GOOD, session.getQuality());
     }
-
-    @Test
-    @DisplayName("Должен вернуть true для валидного формата строки")
-    void testIsValidFormatValid() {
-        String line = "01.10.25 22:15;02.10.25 08:00;GOOD";
-
-        boolean isValid = SleepSessionParser.isValidFormat(line);
-
-        assertTrue(isValid);
-    }
-
-    @Test
-    @DisplayName("Должен вернуть false для невалидного формата строки")
-    void testIsValidFormatInvalid() {
-        String line = "01.10.25 22:15;02.10.25 08:00";
-
-        boolean isValid = SleepSessionParser.isValidFormat(line);
-
-        assertFalse(isValid);
-    }
-
-    @Test
-    @DisplayName("Должен вернуть false для null строки")
-    void testIsValidFormatNull() {
-        boolean isValid = SleepSessionParser.isValidFormat(null);
-
-        assertFalse(isValid);
-    }
 }

@@ -18,8 +18,8 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
             return new SleepAnalysisResult("Количество бессонных ночей", "нет данных");
         }
 
-        LocalDate firstNight = getFirstNightDate(sessions.get(0));
-        LocalDate lastNight = getLastNightDate(sessions.get(sessions.size() - 1));
+        LocalDate firstNight = getNightDate(sessions.get(0).getSleepStart());
+        LocalDate lastNight = getNightDate(sessions.get(sessions.size() - 1).getSleepStart());
 
         Set<LocalDate> nightsWithSleep = sessions.stream()
                 .filter(NightUtils::overlapsNightInterval)
@@ -35,25 +35,14 @@ public class SleeplessNightsAnalysis implements SleepAnalysisFunction {
         );
     }
 
-    private LocalDate getFirstNightDate(SleepingSession firstSession) {
-        LocalDate sessionDate = firstSession.getSleepStart().toLocalDate();
-        LocalTime sessionTime = firstSession.getSleepStart().toLocalTime();
+    private LocalDate getNightDate(java.time.LocalDateTime timestamp) {
+        LocalDate date = timestamp.toLocalDate();
+        LocalTime time = timestamp.toLocalTime();
 
-        if (sessionTime.isAfter(LocalTime.NOON)) {
-            return sessionDate;
+        if (time.isAfter(LocalTime.NOON)) {
+            return date;
         } else {
-            return sessionDate.minusDays(1);
-        }
-    }
-
-    private LocalDate getLastNightDate(SleepingSession lastSession) {
-        LocalDate sessionDate = lastSession.getSleepEnd().toLocalDate();
-        LocalTime sessionTime = lastSession.getSleepEnd().toLocalTime();
-
-        if (sessionTime.isBefore(LocalTime.NOON)) {
-            return sessionDate.minusDays(1);
-        } else {
-            return sessionDate;
+            return date.minusDays(1);
         }
     }
 }

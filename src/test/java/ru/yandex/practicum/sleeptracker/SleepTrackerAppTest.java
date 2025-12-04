@@ -165,14 +165,17 @@ class SleepTrackerAppTest {
     }
 
     @Test
-    @DisplayName("Геттер должен возвращать неизменяемый список")
-    void testGetAnalysisFunctionsReturnsUnmodifiableList() {
+    @DisplayName("Геттер должен возвращать защищенную копию списка")
+    void testGetAnalysisFunctionsReturnsProtectedCopy() {
         SleepTrackerApp app = new SleepTrackerApp();
         List<SleepAnalysisFunction> functions = app.getAnalysisFunctions();
 
-        assertThrows(UnsupportedOperationException.class, () -> {
-            functions.add(sessions -> new SleepAnalysisResult("Новая", "функция"));
-        });
+        int originalSize = functions.size();
+
+        functions.add(sessions -> new SleepAnalysisResult("Новая", "функция"));
+
+        assertEquals(originalSize + 1, functions.size());
+        assertEquals(originalSize, app.getAnalysisFunctions().size());
     }
 
     @Test

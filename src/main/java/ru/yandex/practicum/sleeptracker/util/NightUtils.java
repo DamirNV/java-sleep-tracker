@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.LongStream;
 
 public class NightUtils {
     private static final LocalTime NIGHT_START = LocalTime.MIDNIGHT;
@@ -16,19 +17,15 @@ public class NightUtils {
     }
 
     public static boolean overlapsNightInterval(LocalDateTime start, LocalDateTime end) {
-        LocalDate currentDate = start.toLocalDate();
+        long daysBetween = ChronoUnit.DAYS.between(start.toLocalDate(), end.toLocalDate());
 
-        for (int i = 0; i <= ChronoUnit.DAYS.between(start.toLocalDate(), end.toLocalDate()); i++) {
-            LocalDateTime nightStart = currentDate.plusDays(i).atStartOfDay();
-            LocalDateTime nightEnd = nightStart.plusHours(6);
-
-            boolean overlaps = !end.isBefore(nightStart) && !start.isAfter(nightEnd);
-            if (overlaps) {
-                return true;
-            }
-        }
-
-        return false;
+        return LongStream.rangeClosed(0, daysBetween)
+                .mapToObj(i -> start.toLocalDate().plusDays(i))
+                .anyMatch(date -> {
+                    LocalDateTime nightStart = date.atStartOfDay();
+                    LocalDateTime nightEnd = nightStart.plusHours(6);
+                    return !end.isBefore(nightStart) && !start.isAfter(nightEnd);
+                });
     }
 
     public static LocalDate getNightDate(SleepingSession session) {
@@ -54,6 +51,6 @@ public class NightUtils {
     }
 
     public static boolean isNightTime(LocalTime time) {
-        return time.isAfter(NIGHT_START) && time.isBefore(NIGHT_END);
+        return !time.isBefore(NIGHT_START) && time.isBefore(NIGHT_END);
     }
 }

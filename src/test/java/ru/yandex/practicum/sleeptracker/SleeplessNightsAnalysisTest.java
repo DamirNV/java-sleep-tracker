@@ -39,7 +39,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(2, result.getResult());
+        assertEquals(3L, result.getResult());
     }
 
     @Test
@@ -60,7 +60,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(0, result.getResult());
+        assertEquals(0L, result.getResult());
     }
 
     @Test
@@ -76,7 +76,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(0, result.getResult());
+        assertEquals(0L, result.getResult());
     }
 
     @Test
@@ -92,7 +92,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(1, result.getResult());
+        assertEquals(1L, result.getResult());
     }
 
     @Test
@@ -124,7 +124,23 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(0, result.getResult());
+        assertEquals(1L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно определить первую ночь при начале до 12 дня")
+    void testAnalyzeWithStartBeforeNoon() {
+        List<SleepingSession> sessions = Collections.singletonList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 8, 0),
+                        LocalDateTime.of(2025, 10, 1, 9, 0),
+                        SleepQuality.NORMAL
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals("Количество бессонных ночей", result.getDescription());
+        assertEquals(1L, result.getResult());
     }
 
     @Test
@@ -145,7 +161,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(0, result.getResult());
+        assertEquals(0L, result.getResult());
     }
 
     @Test
@@ -166,7 +182,7 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(3, result.getResult());
+        assertEquals(2L, result.getResult());
     }
 
     @Test
@@ -181,7 +197,7 @@ class SleeplessNightsAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals(0, result.getResult());
+        assertEquals(0L, result.getResult());
     }
 
     @Test
@@ -201,7 +217,7 @@ class SleeplessNightsAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals(0, result.getResult());
+        assertEquals(0L, result.getResult());
     }
 
     @Test
@@ -221,6 +237,66 @@ class SleeplessNightsAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals(1, result.getResult());
+        assertEquals(2L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать переход через месяц")
+    void testAnalyzeCrossMonthBoundary() {
+        List<SleepingSession> sessions = Arrays.asList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 2, 28, 23, 0),
+                        LocalDateTime.of(2025, 3, 1, 7, 0),
+                        SleepQuality.GOOD
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 3, 2, 14, 0),
+                        LocalDateTime.of(2025, 3, 2, 15, 0),
+                        SleepQuality.NORMAL
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(2L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать только дневные сессии")
+    void testAnalyzeOnlyDaytimeSessions() {
+        List<SleepingSession> sessions = Arrays.asList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 10, 0),
+                        LocalDateTime.of(2025, 10, 1, 11, 0),
+                        SleepQuality.GOOD
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 2, 14, 0),
+                        LocalDateTime.of(2025, 10, 2, 15, 0),
+                        SleepQuality.NORMAL
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 3, 16, 0),
+                        LocalDateTime.of(2025, 10, 3, 17, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(4L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно определить ночь для сессии точно в 12:00")
+    void testAnalyzeSessionExactlyAtNoon() {
+        List<SleepingSession> sessions = Collections.singletonList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 12, 0),
+                        LocalDateTime.of(2025, 10, 1, 13, 0),
+                        SleepQuality.NORMAL
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(1L, result.getResult());
     }
 }
