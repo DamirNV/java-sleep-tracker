@@ -3,7 +3,6 @@ package ru.yandex.practicum.sleeptracker.app;
 import ru.yandex.practicum.sleeptracker.util.SleepSessionParser;
 import ru.yandex.practicum.sleeptracker.analyzer.*;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
-import ru.yandex.practicum.sleeptracker.model.SleepQuality;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 
 import java.io.BufferedReader;
@@ -13,8 +12,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
