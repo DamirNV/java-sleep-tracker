@@ -1,6 +1,5 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.analyzer;
 
-import ru.yandex.practicum.sleeptracker.analyzer.ChronotypeAnalysis;
 import ru.yandex.practicum.sleeptracker.model.Chronotype;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
@@ -30,7 +29,7 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Сова", result.getResult());
+        assertEquals(Chronotype.NIGHT_OWL, result.getResult());
     }
 
     @Test
@@ -46,7 +45,7 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Жаворонок", result.getResult());
+        assertEquals(Chronotype.EARLY_BIRD, result.getResult());
     }
 
     @Test
@@ -62,7 +61,7 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Голубь", result.getResult());
+        assertEquals(Chronotype.DOVE, result.getResult());
     }
 
     @Test
@@ -75,7 +74,7 @@ class ChronotypeAnalysisTest {
                         SleepQuality.NORMAL
                 ),
                 new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 23, 1), // Изменил с 23:00 на 23:01
+                        LocalDateTime.of(2025, 10, 1, 23, 1),
                         LocalDateTime.of(2025, 10, 2, 9, 1),
                         SleepQuality.GOOD
                 )
@@ -83,7 +82,7 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Сова", result.getResult());
+        assertEquals(Chronotype.NIGHT_OWL, result.getResult());
     }
 
     @Test
@@ -104,23 +103,15 @@ class ChronotypeAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("Голубь", result.getResult());
+        assertEquals(Chronotype.DOVE, result.getResult());
     }
 
     @Test
-    @DisplayName("Должен вернуть 'недостаточно данных' для пустого списка")
+    @DisplayName("Должен вернуть ГОЛУБЯ для пустого списка")
     void testAnalyzeWithEmptyList() {
         SleepAnalysisResult result = analyzer.analyze(Collections.emptyList());
         assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("недостаточно данных", result.getResult());
-    }
-
-    @Test
-    @DisplayName("Должен корректно обработать null входные данные")
-    void testAnalyzeWithNullInput() {
-        SleepAnalysisResult result = analyzer.analyze(null);
-        assertEquals("Хронотип пользователя", result.getDescription());
-        assertEquals("недостаточно данных", result.getResult());
+        assertEquals(Chronotype.DOVE, result.getResult());
     }
 
     @Test
@@ -135,7 +126,7 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals("Сова", result.getResult());
+        assertEquals(Chronotype.NIGHT_OWL, result.getResult());
     }
 
     @Test
@@ -150,7 +141,7 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result1 = analyzer.analyze(earlyBirdBorderline);
-        assertEquals("Жаворонок", result1.getResult());
+        assertEquals(Chronotype.EARLY_BIRD, result1.getResult());
 
         List<SleepingSession> nightOwlBorderline = List.of(
                 new SleepingSession(
@@ -161,7 +152,7 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result2 = analyzer.analyze(nightOwlBorderline);
-        assertEquals("Сова", result2.getResult());
+        assertEquals(Chronotype.NIGHT_OWL, result2.getResult());
     }
 
     @Test
@@ -174,7 +165,7 @@ class ChronotypeAnalysisTest {
                         SleepQuality.GOOD
                 )
         );
-        assertEquals("Жаворонок", analyzer.analyze(sessions1).getResult());
+        assertEquals(Chronotype.EARLY_BIRD, analyzer.analyze(sessions1).getResult());
 
         List<SleepingSession> sessions2 = List.of(
                 new SleepingSession(
@@ -183,7 +174,7 @@ class ChronotypeAnalysisTest {
                         SleepQuality.GOOD
                 )
         );
-        assertEquals("Голубь", analyzer.analyze(sessions2).getResult());
+        assertEquals(Chronotype.DOVE, analyzer.analyze(sessions2).getResult());
 
         List<SleepingSession> sessions3 = List.of(
                 new SleepingSession(
@@ -192,16 +183,16 @@ class ChronotypeAnalysisTest {
                         SleepQuality.GOOD
                 )
         );
-        assertEquals("Голубь", analyzer.analyze(sessions3).getResult());
+        assertEquals(Chronotype.DOVE, analyzer.analyze(sessions3).getResult());
 
         List<SleepingSession> sessions4 = List.of(
                 new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 23, 0, 1), // Изменил с 23:0:1 на 23:0:1 (уже было правильно)
+                        LocalDateTime.of(2025, 10, 1, 23, 0, 1),
                         LocalDateTime.of(2025, 10, 2, 9, 0, 1),
                         SleepQuality.GOOD
                 )
         );
-        assertEquals("Сова", analyzer.analyze(sessions4).getResult());
+        assertEquals(Chronotype.NIGHT_OWL, analyzer.analyze(sessions4).getResult());
     }
 
     @Test
@@ -221,6 +212,46 @@ class ChronotypeAnalysisTest {
         );
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals("Голубь", result.getResult());
+        assertEquals(Chronotype.DOVE, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен определить СОВУ при сне через полночь до 9:01")
+    void testAnalyzeNightOwlCrossMidnightEarlyWake() {
+        List<SleepingSession> sessions = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 23, 30),
+                        LocalDateTime.of(2025, 10, 2, 9, 1),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(Chronotype.NIGHT_OWL, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен вернуть Голубя при большинстве Голубей")
+    void testAnalyzeMajorityDove() {
+        List<SleepingSession> sessions = Arrays.asList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 22, 30),
+                        LocalDateTime.of(2025, 10, 2, 7, 30),
+                        SleepQuality.GOOD
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 2, 22, 45),
+                        LocalDateTime.of(2025, 10, 3, 7, 45),
+                        SleepQuality.NORMAL
+                ),
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 3, 21, 0),
+                        LocalDateTime.of(2025, 10, 4, 6, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(Chronotype.DOVE, result.getResult());
     }
 }

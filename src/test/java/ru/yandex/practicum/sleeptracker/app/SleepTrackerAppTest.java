@@ -1,7 +1,6 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.app;
 
 import ru.yandex.practicum.sleeptracker.analyzer.*;
-import ru.yandex.practicum.sleeptracker.app.SleepTrackerApp;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.model.SleepQuality;
@@ -18,6 +17,17 @@ class SleepTrackerAppTest {
 
     @TempDir
     Path tempDir;
+
+    @Test
+    @DisplayName("Геттер должен возвращать неизменяемый список")
+    void testGetAnalysisFunctionsReturnsUnmodifiableList() {
+        SleepTrackerApp app = new SleepTrackerApp();
+        List<SleepAnalysisFunction> functions = app.getAnalysisFunctions();
+
+        assertThrows(UnsupportedOperationException.class, () -> {
+            functions.add(sessions -> new SleepAnalysisResult("Новая", "функция"));
+        });
+    }
 
     @Test
     @DisplayName("Должен правильно загрузить сессии из файла")
@@ -162,40 +172,5 @@ class SleepTrackerAppTest {
         assertEquals(2, sessions.size());
         assertEquals(SleepQuality.GOOD, sessions.get(0).getQuality());
         assertEquals(SleepQuality.NORMAL, sessions.get(1).getQuality());
-    }
-
-    @Test
-    @DisplayName("Геттер должен возвращать защищенную копию списка")
-    void testGetAnalysisFunctionsReturnsProtectedCopy() {
-        SleepTrackerApp app = new SleepTrackerApp();
-        List<SleepAnalysisFunction> functions = app.getAnalysisFunctions();
-
-        int originalSize = functions.size();
-
-        functions.add(sessions -> new SleepAnalysisResult("Новая", "функция"));
-
-        assertEquals(originalSize + 1, functions.size());
-        assertEquals(originalSize, app.getAnalysisFunctions().size());
-    }
-
-    @Test
-    @DisplayName("Должен корректно работать с геттером после добавления функции")
-    void testGetAnalysisFunctionsAfterAddingFunction() {
-        SleepTrackerApp app = new SleepTrackerApp();
-        int initialSize = app.getAnalysisFunctions().size();
-
-        SleepAnalysisFunction newFunction = sessions ->
-                new SleepAnalysisResult("Дополнительная", "функция");
-
-        app.addAnalysisFunction(newFunction);
-
-        assertEquals(initialSize + 1, app.getAnalysisFunctions().size());
-
-        SleepAnalysisFunction lastFunction = app.getAnalysisFunctions()
-                .get(app.getAnalysisFunctions().size() - 1);
-
-        SleepAnalysisResult result = lastFunction.analyze(List.of());
-        assertEquals("Дополнительная", result.getDescription());
-        assertEquals("функция", result.getResult());
     }
 }

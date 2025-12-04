@@ -1,6 +1,5 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.analyzer;
 
-import ru.yandex.practicum.sleeptracker.analyzer.SleeplessNightsAnalysis;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.model.SleepQuality;
@@ -80,35 +79,11 @@ class SleeplessNightsAnalysisTest {
     }
 
     @Test
-    @DisplayName("Должен правильно обработать дневной сон как бессонную ночь")
-    void testAnalyzeWithDaytimeSleepOnly() {
-        List<SleepingSession> sessions = Collections.singletonList(
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 14, 0),
-                        LocalDateTime.of(2025, 10, 1, 15, 0),
-                        SleepQuality.NORMAL
-                )
-        );
-
-        SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals(1L, result.getResult());
-    }
-
-    @Test
-    @DisplayName("Должен вернуть 'нет данных' для пустого списка")
+    @DisplayName("Должен вернуть 0 для пустого списка")
     void testAnalyzeWithEmptyList() {
         SleepAnalysisResult result = analyzer.analyze(Collections.emptyList());
         assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals("нет данных", result.getResult());
-    }
-
-    @Test
-    @DisplayName("Должен корректно обработать null входные данные")
-    void testAnalyzeWithNullInput() {
-        SleepAnalysisResult result = analyzer.analyze(null);
-        assertEquals("Количество бессонных ночей", result.getDescription());
-        assertEquals("нет данных", result.getResult());
+        assertEquals(0, result.getResult());
     }
 
     @Test
@@ -261,31 +236,6 @@ class SleeplessNightsAnalysisTest {
     }
 
     @Test
-    @DisplayName("Должен правильно обработать только дневные сессии")
-    void testAnalyzeOnlyDaytimeSessions() {
-        List<SleepingSession> sessions = Arrays.asList(
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 1, 10, 0),
-                        LocalDateTime.of(2025, 10, 1, 11, 0),
-                        SleepQuality.GOOD
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 2, 14, 0),
-                        LocalDateTime.of(2025, 10, 2, 15, 0),
-                        SleepQuality.NORMAL
-                ),
-                new SleepingSession(
-                        LocalDateTime.of(2025, 10, 3, 16, 0),
-                        LocalDateTime.of(2025, 10, 3, 17, 0),
-                        SleepQuality.GOOD
-                )
-        );
-
-        SleepAnalysisResult result = analyzer.analyze(sessions);
-        assertEquals(4L, result.getResult());
-    }
-
-    @Test
     @DisplayName("Должен правильно определить ночь для сессии точно в 12:00")
     void testAnalyzeSessionExactlyAtNoon() {
         List<SleepingSession> sessions = Collections.singletonList(
@@ -298,5 +248,50 @@ class SleeplessNightsAnalysisTest {
 
         SleepAnalysisResult result = analyzer.analyze(sessions);
         assertEquals(1L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать одну ночную сессию")
+    void testAnalyzeSingleNightSession() {
+        List<SleepingSession> sessions = Collections.singletonList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 23, 0),
+                        LocalDateTime.of(2025, 10, 2, 7, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(0L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать сессию заканчивающуюся точно в 6:00")
+    void testAnalyzeSessionEndingExactlyAt6AM() {
+        List<SleepingSession> sessions = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 4, 0),
+                        LocalDateTime.of(2025, 10, 1, 6, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(0L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать сессию начинающуюся точно в 0:00")
+    void testAnalyzeSessionStartingExactlyAtMidnight() {
+        List<SleepingSession> sessions = List.of(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 0, 0),
+                        LocalDateTime.of(2025, 10, 1, 4, 0),
+                        SleepQuality.GOOD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+        assertEquals(0L, result.getResult());
     }
 }

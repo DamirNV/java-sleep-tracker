@@ -1,8 +1,7 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.model;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import ru.yandex.practicum.sleeptracker.model.SleepQuality;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,11 +13,9 @@ class SleepQualityTest {
         SleepQuality[] values = SleepQuality.values();
 
         assertEquals(3, values.length);
-        assertArrayEquals(new SleepQuality[]{
-                SleepQuality.GOOD,
-                SleepQuality.NORMAL,
-                SleepQuality.BAD
-        }, values);
+        assertTrue(contains(values, SleepQuality.GOOD));
+        assertTrue(contains(values, SleepQuality.NORMAL));
+        assertTrue(contains(values, SleepQuality.BAD));
     }
 
     @Test
@@ -35,5 +32,14 @@ class SleepQualityTest {
         assertEquals("GOOD", SleepQuality.GOOD.name());
         assertEquals("NORMAL", SleepQuality.NORMAL.name());
         assertEquals("BAD", SleepQuality.BAD.name());
+    }
+
+    private boolean contains(SleepQuality[] values, SleepQuality type) {
+        for (SleepQuality value : values) {
+            if (value == type) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -20,7 +20,7 @@ public class NightUtils {
         long daysBetween = ChronoUnit.DAYS.between(start.toLocalDate(), end.toLocalDate());
 
         return LongStream.rangeClosed(0, daysBetween)
-                .mapToObj(i -> start.toLocalDate().plusDays(i))
+                .mapToObj(offset -> start.toLocalDate().plusDays(offset))
                 .anyMatch(date -> {
                     LocalDateTime nightStart = date.atStartOfDay();
                     LocalDateTime nightEnd = nightStart.plusHours(6);
@@ -41,16 +41,5 @@ public class NightUtils {
         } else {
             return date;
         }
-    }
-
-    public static long countNightsBetween(LocalDate start, LocalDate end) {
-        if (start.isAfter(end)) {
-            return 0;
-        }
-        return ChronoUnit.DAYS.between(start, end) + 1;
-    }
-
-    public static boolean isNightTime(LocalTime time) {
-        return !time.isBefore(NIGHT_START) && time.isBefore(NIGHT_END);
     }
 }

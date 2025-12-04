@@ -5,21 +5,16 @@ import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.util.NightUtils;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ChronotypeAnalysis implements SleepAnalysisFunction {
-
-    private static final int OWL_SLEEP_HOUR = 23;
-    private static final int OWL_WAKE_HOUR = 9;
-    private static final int BIRD_SLEEP_HOUR = 22;
-    private static final int BIRD_WAKE_HOUR = 7;
-
     @Override
     public SleepAnalysisResult analyze(List<SleepingSession> sessions) {
-        if (sessions == null || sessions.isEmpty()) {
-            return new SleepAnalysisResult("Хронотип пользователя", "недостаточно данных");
+        if (sessions.isEmpty()) {
+            return new SleepAnalysisResult("Хронотип пользователя", Chronotype.DOVE);
         }
 
         Map<Chronotype, Long> chronotypeCounts = sessions.stream()
@@ -31,32 +26,30 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
                 ));
 
         Chronotype dominantChronotype = determineDominantChronotype(chronotypeCounts);
-
-        return new SleepAnalysisResult(
-                "Хронотип пользователя",
-                dominantChronotype.getDisplayName()
-        );
+        return new SleepAnalysisResult("Хронотип пользователя", dominantChronotype);
     }
 
     private Chronotype determineChronotypeForSession(SleepingSession session) {
-        int sleepHour = session.getSleepStart().getHour();
-        int sleepMinute = session.getSleepStart().getMinute();
-        int wakeHour = session.getSleepEnd().getHour();
-        int wakeMinute = session.getSleepEnd().getMinute();
+        LocalTime sleepTime = session.getSleepStart().toLocalTime();
+        LocalTime wakeTime = session.getSleepEnd().toLocalTime();
 
-        double sleepTime = sleepHour + sleepMinute / 60.0;
-        double wakeTime = wakeHour + wakeMinute / 60.0;
+        LocalTime owlSleepThreshold = LocalTime.of(23, 0);
+        LocalTime owlWakeThreshold = LocalTime.of(9, 0);
+        LocalTime birdSleepThreshold = LocalTime.of(22, 0);
+        LocalTime birdWakeThreshold = LocalTime.of(7, 0);
 
-        boolean differentDay = !session.getSleepStart().toLocalDate().equals(session.getSleepEnd().toLocalDate());
+        boolean sleepAfter23 = sleepTime.isAfter(owlSleepThreshold);
+        boolean wakeAfter9 = wakeTime.isAfter(owlWakeThreshold);
+        boolean differentDay = session.getSleepEnd().toLocalDate().isAfter(session.getSleepStart().toLocalDate());
 
-        double adjustedWakeTime = wakeTime;
-        if (differentDay) {
-            adjustedWakeTime = wakeTime + 24;
-        }
+        boolean isOwl = sleepAfter23 && wakeAfter9;
 
-        if (sleepTime >= OWL_SLEEP_HOUR && adjustedWakeTime > OWL_WAKE_HOUR) {
+        boolean isBird = sleepTime.isBefore(birdSleepThreshold) &&
+                wakeTime.isBefore(birdWakeThreshold);
+
+        if (isOwl) {
             return Chronotype.NIGHT_OWL;
-        } else if (sleepTime < BIRD_SLEEP_HOUR && wakeTime < BIRD_WAKE_HOUR) {
+        } else if (isBird) {
             return Chronotype.EARLY_BIRD;
         } else {
             return Chronotype.DOVE;
@@ -76,7 +69,7 @@ public class ChronotypeAnalysis implements SleepAnalysisFunction {
         List<Chronotype> dominantTypes = counts.entrySet().stream()
                 .filter(entry -> entry.getValue() == maxCount)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
 
         if (dominantTypes.size() > 1) {
             return Chronotype.DOVE;

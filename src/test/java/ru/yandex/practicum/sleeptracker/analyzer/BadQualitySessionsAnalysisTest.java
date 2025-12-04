@@ -1,6 +1,5 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.analyzer;
 
-import ru.yandex.practicum.sleeptracker.analyzer.BadQualitySessionsAnalysis;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.model.SleepQuality;
@@ -80,15 +79,6 @@ class BadQualitySessionsAnalysisTest {
     }
 
     @Test
-    @DisplayName("Должен вернуть 'нет данных' для null входных данных")
-    void testAnalyzeWithNullInput() {
-        SleepAnalysisResult result = analyzer.analyze(null);
-
-        assertEquals("Количество сессий с плохим качеством сна", result.getDescription());
-        assertEquals("нет данных", result.getResult());
-    }
-
-    @Test
     @DisplayName("Должен правильно подсчитать все плохие сессии")
     void testAnalyzeWithAllBadQualitySessions() {
         List<SleepingSession> sessions = Arrays.asList(
@@ -113,5 +103,22 @@ class BadQualitySessionsAnalysisTest {
 
         assertEquals("Количество сессий с плохим качеством сна", result.getDescription());
         assertEquals(3L, result.getResult());
+    }
+
+    @Test
+    @DisplayName("Должен правильно обработать только одну сессию")
+    void testAnalyzeWithSingleSession() {
+        List<SleepingSession> sessions = Collections.singletonList(
+                new SleepingSession(
+                        LocalDateTime.of(2025, 10, 1, 22, 0),
+                        LocalDateTime.of(2025, 10, 2, 6, 0),
+                        SleepQuality.BAD
+                )
+        );
+
+        SleepAnalysisResult result = analyzer.analyze(sessions);
+
+        assertEquals("Количество сессий с плохим качеством сна", result.getDescription());
+        assertEquals(1L, result.getResult());
     }
 }

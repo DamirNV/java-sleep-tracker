@@ -1,9 +1,7 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.model;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import ru.yandex.practicum.sleeptracker.model.SleepQuality;
-import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;

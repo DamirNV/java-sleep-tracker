@@ -1,6 +1,5 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.analyzer;
 
-import ru.yandex.practicum.sleeptracker.analyzer.AverageDurationAnalysis;
 import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.model.SleepQuality;
@@ -43,7 +42,7 @@ class AverageDurationAnalysisTest {
         assertTrue(result.getResult() instanceof String);
 
         String actual = (String) result.getResult();
-        assertEquals("340.0", actual.replace(',', '.'));
+        assertEquals("340.0", actual);
     }
 
     @Test
@@ -63,25 +62,16 @@ class AverageDurationAnalysisTest {
         assertTrue(result.getResult() instanceof String);
 
         String actual = (String) result.getResult();
-        assertEquals("480.0", actual.replace(',', '.'));
+        assertEquals("480.0", actual);
     }
 
     @Test
-    @DisplayName("Должен вернуть 'нет данных' для пустого списка")
+    @DisplayName("Должен вернуть 0.0 для пустого списка")
     void testAnalyzeWithEmptyList() {
         SleepAnalysisResult result = analyzer.analyze(Collections.emptyList());
 
-        assertEquals("Средняя продолжительность сессии", result.getDescription());
-        assertEquals("нет данных", result.getResult());
-    }
-
-    @Test
-    @DisplayName("Должен корректно обработать null входные данные")
-    void testAnalyzeWithNullInput() {
-        SleepAnalysisResult result = analyzer.analyze(null);
-
-        assertEquals("Средняя продолжительность сессии", result.getDescription());
-        assertEquals("нет данных", result.getResult());
+        assertEquals("Средняя продолжительность сессии (в минутах)", result.getDescription());
+        assertEquals("0.0", result.getResult());
     }
 
     @Test
@@ -106,6 +96,6 @@ class AverageDurationAnalysisTest {
         assertTrue(result.getResult() instanceof String);
 
         String actual = (String) result.getResult();
-        assertEquals("502.5", actual.replace(',', '.'));
+        assertEquals("502.5", actual);
     }
 }

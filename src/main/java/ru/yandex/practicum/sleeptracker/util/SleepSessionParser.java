@@ -23,8 +23,13 @@ public class SleepSessionParser {
         try {
             LocalDateTime sleepStart = LocalDateTime.parse(parts[0].trim(), FORMATTER);
             LocalDateTime sleepEnd = LocalDateTime.parse(parts[1].trim(), FORMATTER);
-            SleepQuality quality = SleepQuality.valueOf(parts[2].trim());
+            String qualityStr = parts[2].trim().toUpperCase();
 
+            if (!qualityStr.equals("GOOD") && !qualityStr.equals("NORMAL") && !qualityStr.equals("BAD")) {
+                return null;
+            }
+
+            SleepQuality quality = SleepQuality.valueOf(qualityStr);
             return new SleepingSession(sleepStart, sleepEnd, quality);
         } catch (Exception e) {
             return null;

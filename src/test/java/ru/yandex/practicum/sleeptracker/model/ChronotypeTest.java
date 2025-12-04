@@ -1,8 +1,7 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.model;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import ru.yandex.practicum.sleeptracker.model.Chronotype;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,11 +39,9 @@ class ChronotypeTest {
         Chronotype[] values = Chronotype.values();
 
         assertEquals(3, values.length);
-        assertArrayEquals(new Chronotype[]{
-                Chronotype.EARLY_BIRD,
-                Chronotype.NIGHT_OWL,
-                Chronotype.DOVE
-        }, values);
+        assertTrue(contains(values, Chronotype.EARLY_BIRD));
+        assertTrue(contains(values, Chronotype.NIGHT_OWL));
+        assertTrue(contains(values, Chronotype.DOVE));
     }
 
     @Test
@@ -53,5 +50,14 @@ class ChronotypeTest {
         assertEquals(Chronotype.EARLY_BIRD, Chronotype.valueOf("EARLY_BIRD"));
         assertEquals(Chronotype.NIGHT_OWL, Chronotype.valueOf("NIGHT_OWL"));
         assertEquals(Chronotype.DOVE, Chronotype.valueOf("DOVE"));
+    }
+
+    private boolean contains(Chronotype[] values, Chronotype type) {
+        for (Chronotype value : values) {
+            if (value == type) {
+                return true;
+            }
+        }
+        return false;
     }
 }

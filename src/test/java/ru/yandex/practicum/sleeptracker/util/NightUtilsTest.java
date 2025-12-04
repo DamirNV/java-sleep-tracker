@@ -1,10 +1,9 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import ru.yandex.practicum.sleeptracker.model.SleepingSession;
 import ru.yandex.practicum.sleeptracker.model.SleepQuality;
-import ru.yandex.practicum.sleeptracker.util.NightUtils;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -88,43 +87,6 @@ class NightUtilsTest {
     }
 
     @Test
-    @DisplayName("Должен правильно посчитать количество ночей между датами")
-    void testCountNightsBetween() {
-        LocalDate start = LocalDate.of(2025, 10, 1);
-        LocalDate end = LocalDate.of(2025, 10, 5);
-
-        assertEquals(5, NightUtils.countNightsBetween(start, end));
-    }
-
-    @Test
-    @DisplayName("Должен вернуть 1 при одинаковых датах")
-    void testCountNightsBetween_SameDate() {
-        LocalDate date = LocalDate.of(2025, 10, 1);
-
-        assertEquals(1, NightUtils.countNightsBetween(date, date));
-    }
-
-    @Test
-    @DisplayName("Должен вернуть 0 если конечная дата раньше начальной")
-    void testCountNightsBetween_EndBeforeStart() {
-        LocalDate start = LocalDate.of(2025, 10, 5);
-        LocalDate end = LocalDate.of(2025, 10, 1);
-
-        assertEquals(0, NightUtils.countNightsBetween(start, end));
-    }
-
-    @Test
-    @DisplayName("Должен определить ночное время")
-    void testIsNightTime() {
-        assertTrue(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 0, 0).toLocalTime()));
-        assertTrue(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 3, 30).toLocalTime()));
-        assertTrue(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 5, 59).toLocalTime()));
-        assertFalse(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 6, 0).toLocalTime()));
-        assertFalse(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 12, 0).toLocalTime()));
-        assertFalse(NightUtils.isNightTime(LocalDateTime.of(2025, 10, 1, 23, 59).toLocalTime()));
-    }
-
-    @Test
     @DisplayName("Должен определить ночь для сессии с началом до 6 утра")
     void testOverlapsNightInterval_StartBefore6AM() {
         SleepingSession session = new SleepingSession(
@@ -171,5 +133,47 @@ class NightUtilsTest {
 
         LocalDate nightDate = NightUtils.getNightDate(session);
         assertEquals(LocalDate.of(2025, 10, 1), nightDate);
+    }
+
+    @Test
+    @DisplayName("Должен определить пересечение для сессии граничащей с 00:00")
+    void testOverlapsNightInterval_BorderMidnight() {
+        SleepingSession session = new SleepingSession(
+                LocalDateTime.of(2025, 10, 1, 23, 59),
+                LocalDateTime.of(2025, 10, 2, 0, 1),
+                SleepQuality.GOOD
+        );
+
+        assertTrue(NightUtils.overlapsNightInterval(session));
+    }
+
+    @Test
+    @DisplayName("Должен определить отсутствие пересечения для сессии граничащей с 06:00")
+    void testOverlapsNightInterval_Border6AM() {
+        SleepingSession session = new SleepingSession(
+                LocalDateTime.of(2025, 10, 1, 5, 59),
+                LocalDateTime.of(2025, 10, 1, 6, 0),
+                SleepQuality.GOOD
+        );
+
+        assertTrue(NightUtils.overlapsNightInterval(session));
+    }
+
+    @Test
+    @DisplayName("Должен определить ночь для времени ровно в 11:59")
+    void testGetNightDate_ExactlyBeforeNoon() {
+        LocalDateTime time = LocalDateTime.of(2025, 10, 2, 11, 59);
+        LocalDate nightDate = NightUtils.getNightDate(time);
+
+        assertEquals(LocalDate.of(2025, 10, 1), nightDate);
+    }
+
+    @Test
+    @DisplayName("Должен определить ночь для времени ровно в 12:01")
+    void testGetNightDate_ExactlyAfterNoon() {
+        LocalDateTime time = LocalDateTime.of(2025, 10, 2, 12, 1);
+        LocalDate nightDate = NightUtils.getNightDate(time);
+
+        assertEquals(LocalDate.of(2025, 10, 2), nightDate);
     }
 }

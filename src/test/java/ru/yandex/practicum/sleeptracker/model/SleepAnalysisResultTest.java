@@ -1,8 +1,7 @@
-package ru.yandex.practicum.sleeptracker;
+package ru.yandex.practicum.sleeptracker.model;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import ru.yandex.practicum.sleeptracker.model.SleepAnalysisResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +41,7 @@ class SleepAnalysisResultTest {
     @DisplayName("Должен вернуть корректное строковое представление для null")
     void testToStringWithNull() {
         SleepAnalysisResult result = new SleepAnalysisResult("Тест", null);
-        assertEquals("Тест: нет данных", result.toString()); // Исправлено согласно коду
+        assertEquals("Тест: null", result.toString());
     }
 
     @Test
@@ -76,5 +75,19 @@ class SleepAnalysisResultTest {
     void testToStringWithDouble() {
         SleepAnalysisResult result = new SleepAnalysisResult("Среднее", 123.456);
         assertEquals("Среднее: 123.456", result.toString());
+    }
+
+    @Test
+    @DisplayName("Должен вернуть строковое представление для boolean")
+    void testToStringWithBoolean() {
+        SleepAnalysisResult result = new SleepAnalysisResult("Статус", true);
+        assertEquals("Статус: true", result.toString());
+    }
+
+    @Test
+    @DisplayName("Должен вернуть строковое представление для long")
+    void testToStringWithLong() {
+        SleepAnalysisResult result = new SleepAnalysisResult("Длительность", 600L);
+        assertEquals("Длительность: 600", result.toString());
     }
 }
