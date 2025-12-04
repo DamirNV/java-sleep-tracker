@@ -19,6 +19,10 @@ import java.util.stream.Collectors;
 public class SleepTrackerApp {
     private List<SleepAnalysisFunction> analysisFunctions;
 
+    public List<SleepAnalysisFunction> getAnalysisFunctions() {
+        return new ArrayList<>(analysisFunctions); // возвращаем копию
+    }
+
     public SleepTrackerApp() {
         this.analysisFunctions = new ArrayList<>();
         this.analysisFunctions.add(new TotalSessionsAnalysis());
